@@ -17,19 +17,7 @@ from housingWebScraper.exporters import CsvOptionRespectingItemExporter
 def item_type(item):
     return type(item).__name__
 
-class HousingwebscraperPipeline(object):
-    def process_item(self, item, spider):
-        return item
 
-class MultiCSVItemPipeline(object):
-    SaveTypes = ['Property','Transaction']
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        pipeline = cls()
-        crawler.signals.connect(pipeline.spider_opened, signal=signals.spider_opened)
-        crawler.signals.connect(pipeline.spider_closed, signal=signals.spider_closed)
-        return pipeline
 
     def spider_opened(self, spider):
         self.files = dict([ (name, open(settings.get('CSV_OUTPUT_FOLDER') + name + '.csv','w+b')) for name in self.SaveTypes ])
@@ -40,11 +28,7 @@ class MultiCSVItemPipeline(object):
         [e.finish_exporting() for e in self.exporters.values()]
         [f.close() for f in self.files.values()]
 
-    def process_item(self, item, spider):
-        what = item_type(item)
-        if what in set(self.SaveTypes):
-            self.exporters[what].export_item(item)
-        return item
+    
     
      def access_item(self, item, spider):
         what = item_type(item)
